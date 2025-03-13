@@ -43,7 +43,9 @@ def get_build_keys(product_config):
   default_cert = product_config.get("DefaultAppCertificate", "")
   if default_cert == "" or default_cert == os.path.join(TEST_KEY_DIR, "testKey"):
     return "test-keys"
-  return "release-keys"
+  if default_cert.startswith("vendor/lineage-priv/"):
+    return "release-keys"
+  return "dev-keys"
 
 def override_config(config):
   if "PRODUCT_BUILD_PROP_OVERRIDES" in config:
@@ -118,7 +120,8 @@ def parse_args():
   if args.build_thumbprint_file:
     config["BuildThumbprint"] = args.build_thumbprint_file.read().strip()
 
-  config["CustomDevice"] = config["DeviceName"]
+  config["LineageDesc"] = config["BuildDesc"]
+  config["LineageDevice"] = config["DeviceName"]
 
   if config["BuildNumber"].startswith("eng."):
     config["BuildNumber"] = config["DateUtc"]
@@ -217,12 +220,12 @@ def generate_build_info(args):
 
     # Dev. branches should have DISPLAY_BUILD_NUMBER set
     if config["DisplayBuildNumber"]:
-      print(f"ro.build.display.id?={config['BuildId']}")
+      print(f"ro.build.display.id?={config['BuildId']}.{config['BuildNumber']} {config['BuildKeys']}")
     else:
-      print(f"ro.build.display.id?={config['BuildId']}")
+      print(f"ro.build.display.id?={config['BuildId']} {config['BuildKeys']}")
   else:
     # Non-user builds should show detailed build information (See build desc above)
-    print(f"ro.build.display.id?={config['BuildId']}")
+    print(f"ro.build.display.id?={config['LineageDesc']}")
   print(f"ro.build.version.incremental={config['BuildNumber']}")
   print(f"ro.build.version.sdk={config['Platform_sdk_version']}")
   print(f"ro.build.version.sdk_minor={build_flags['RELEASE_PLATFORM_SDK_MINOR_VERSION']}")
@@ -250,7 +253,7 @@ def generate_build_info(args):
   # flavor (via a dedicated lunch config for example).
   print(f"ro.build.flavor={config['BuildFlavor']}")
 
-  print(f"ro.custom.device={config['CustomDevice']}")
+  print(f"ro.lineage.device={config['LineageDevice']}")
 
   # These values are deprecated, use "ro.product.cpu.abilist"
   # instead (see below).

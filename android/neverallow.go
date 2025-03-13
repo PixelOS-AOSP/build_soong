@@ -283,7 +283,7 @@ func createLimitNdkExportRule() []Rule {
 		NeverAllow().ModuleType("ndk_library").WithMatcher("export_include_dirs", isSetMatcherInstance).Because(reason),
 		NeverAllow().ModuleType("ndk_library").WithMatcher("export_shared_lib_headers", isSetMatcherInstance).Because(reason),
 		NeverAllow().ModuleType("ndk_library").WithMatcher("export_static_lib_headers", isSetMatcherInstance).Because(reason),
-        }
+	}
 }
 
 func createLimitDirgroupRule() []Rule {
